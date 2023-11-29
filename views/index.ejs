@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <title>Poll App</title>
+</head>
+<body>
+  <div class="container mt-5">
+    <h1>Poll App</h1>
+
+    <!-- Create Question Form -->
+<form action="/create" method="post">
+  <div class="form-group">
+    <label for="questionText">Question:</label>
+    <input type="text" class="form-control" id="questionText" name="questionText" required>
+  </div>
+  <div class="form-group">
+    <label for="options">Options (comma-separated):</label>
+    <input type="text" class="form-control" id="options" name="options" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Create Question</button>
+</form>
+
+
+    <!-- List of Questions -->
+    <% questions.forEach((question) => { %>
+      <div class="card mt-3">
+        <div class="card-body">
+          <h5 class="card-title"><%= question.questionText %></h5>
+          <ul class="list-group">
+            <% question.options.forEach((option, index) => { %>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <%= option.optionText %>
+                <div class="progress" style="width: 50%;">
+                  <div class="progress-bar" role="progressbar" style="width: <%= (option.votes / question.options.reduce((total, opt) => total + opt.votes, 0)) * 100 %>%;" aria-valuenow="<%= (option.votes / question.options.reduce((total, opt) => total + opt.votes, 0)) * 100 %>" aria-valuemin="0" aria-valuemax="100"><%= Math.round((option.votes / question.options.reduce((total, opt) => total + opt.votes, 0)) * 100) %>%</div>
+                </div>
+              </li>
+            <% }) %>
+            <form action="/delete" method="post" class="mt-3">
+              <input type="hidden" name="questionId" value="<%= question._id %>">
+              <button type="submit" class="btn btn-danger">Delete Question</button>
+            </form>
+          </ul>
+          <!-- Vote Form -->
+          <form action="/vote" method="post" class="mt-3">
+            <input type="hidden" name="questionId" value="<%= question._id %>">
+            <div class="form-group">
+              <label for="option">Vote for:</label>
+              <select class="form-control" id="option" name="optionIndex" required>
+                <% question.options.forEach((option, index) => { %>
+                  <option value="<%= index %>"><%= option.optionText %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="voterName">Your Name:</label>
+              <input type="text" class="form-control" id="voterName" name="voterName" required>
+            </div>
+            <button type="submit" class="btn btn-success">Vote</button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>
